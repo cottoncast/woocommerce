@@ -2,10 +2,6 @@
   "name": "cottoncast/woocommerce",
   "type" : "wordpress-plugin",
   "description": "WooCommerce plugin for Cottoncast",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cottoncast/woocommerce.git"
-  },
   "require": {
     "composer/installers": "~1.0"
   },
@@ -22,5 +18,10 @@
     "email" : "support@cottoncast.com",
     "issues": "https://github.com/cottoncast/woocommerce/issues"
   },
-  "homepage": "https://cottoncast.com/integrations"
+  "homepage": "https://cottoncast.com/integrations",
+  "extra" : {
+    "installer-paths": {
+      "wp-content/plugins/cottoncast": ["cottoncast/woocommerce"]
+    }
+  }
 }
