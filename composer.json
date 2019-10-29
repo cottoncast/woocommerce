@@ -2,7 +2,6 @@
   "name": "cottoncast/woocommerce",
   "type" : "wordpress-plugin",
   "description": "WooCommerce plugin for Cottoncast",
-  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/cottoncast/woocommerce.git"
@@ -10,10 +9,18 @@
   "require": {
     "composer/installers": "~1.0"
   },
-  "author": "Cottoncast",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cottoncast/woocommerce/issues"
+  "authors": [
+    {
+      "name" : "Chris Luttikhuis",
+      "email": "developers@cottoncast.com",
+      "homepage": "https://cottoncast.com",
+      "role": "Developer"
+    }
+  ],
+  "license": "GPL-3.0-or-later",
+  "support" : {
+    "email" : "support@cottoncast.com",
+    "issues": "https://github.com/cottoncast/woocommerce/issues"
   },
   "homepage": "https://cottoncast.com/integrations"
 }
