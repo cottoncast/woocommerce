@@ -55,6 +55,8 @@
 		private $variation_id;
 		private $variation;
 
+		private $attributeLabels;
+
 		public function __construct()
 		{
 			global $wpdb;
@@ -92,7 +94,9 @@
 			foreach ($newJobs as $job)
 			{
 				$job->payload = json_decode($job->payload);
+                $wpdb->query($wpdb->prepare("UPDATE {$this->queue_table_name} SET status= %d, `timestamp`=NOW() WHERE job_id= %d", [self::QUEUE_STATUS_PROCESSING, $job->job_id]));
 				$this->processNewJob($job);
+                $wpdb->query($wpdb->prepare("UPDATE {$this->queue_table_name} SET status= %d, `timestamp`=NOW() WHERE job_id= %d", [self::QUEUE_STATUS_DONE, $job->job_id]));
 			}
 		}
 
@@ -161,7 +165,7 @@
 				{
 					$attribute = $option->code;
 					$value = $option->label;
-					update_post_meta($this->variation_id, 'attribute_'.$attribute, $value);
+					update_post_meta($this->variation_id, 'attribute_'.$this->labelToWooAttribute($this->attributeLabels[$attribute]), $value);
 				}
 
 				$this->variation->save();
@@ -354,8 +358,9 @@
 
 			$unique_download_urls = array_unique($download_urls);
 
-			$downloads->urls = $unique_download_urls;
-			$downloads->url_hash = array_map('sha1', $downloads->urls);
+			$downloads->urls = array_values($unique_download_urls);
+			$url_hashes = array_map('sha1', $downloads->urls);
+			$downloads->url_hash = array_values($url_hashes);
 
 
 			foreach ( $unique_download_urls as $download_url ) {
@@ -478,8 +483,13 @@
 			);
 			$attach_id = wp_insert_attachment( $attachment, $filepath, $this->product_id );
 			require_once(ABSPATH . 'wp-admin/includes/image.php');
-			$attach_data = wp_generate_attachment_metadata( $attach_id, $filepath );
-			wp_update_attachment_metadata( $attach_id, $attach_data );
+			try {
+                $attach_data = wp_generate_attachment_metadata( $attach_id, $filepath );
+                wp_update_attachment_metadata( $attach_id, $attach_data );
+            } catch (Exception $e) {
+			    echo "$filepath\n";
+			    echo $e->getMessage();
+            }
 
 			update_post_meta($attach_id, 'cc_url_hash', $url_hash);
 			update_post_meta($attach_id, 'cc_image_hash', $image_hash);
@@ -565,15 +575,15 @@
 				}
 				$values = array_unique($values);
 
-				$product_attributes_data[$attribute] = array(
-
+				$product_attributes_data[$this->labelToWooAttribute($available_labels[$idx])] = [
 					'name'         => $available_labels[$idx],
 					'value'        => implode('|',$values),
 					'is_visible'   => '1',
 					'is_variation' => '1',
 					'is_taxonomy'  => '0'
 
-				);
+				];
+				$this->attributeLabels[$attribute] = $available_labels[$idx];
 			}
 
 			update_post_meta($this->product_id, '_product_attributes', $product_attributes_data);
@@ -596,6 +606,18 @@
 
 			}
 			return $child_skus;
+		}
+
+
+        private function labelToWooAttribute($label)
+        {
+            $attr = strtolower($label);
+            $attr = trim($attr);
+            $attr = preg_replace('/[^A-Za-z0-9\-\s]/', '', $attr); // remove anything other than alphanumeric
+            $attr = preg_replace('/\s\s+/', ' ', $attr); // remove multiple spaces behind each other
+            $attr = str_replace(' ', '-', $attr); // replace space with a hyphen
+
+            return $attr;
 		}
 
 
