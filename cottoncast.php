@@ -10,7 +10,7 @@
 * Developer URI: https://cottoncast.com/
 *
 * WC requires at least: 2.2
-* WC tested up to: 2.3
+* WC tested up to: 3.8
 *
 * Copyright: © 2019 Cottoncast.
 */
