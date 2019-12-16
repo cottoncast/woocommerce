@@ -183,10 +183,13 @@
 		private function insertProduct($job)
 		{
 
+            $options = get_option( 'cottoncast_settings' );
+            $productStatus = !empty($options['cottoncast_product_settings_field_product_status']) ? $options['cottoncast_product_settings_field_product_status'] : 'publish';
+
 			$this->product_id = wp_insert_post([
 				'post_title' => $job->payload->name,
 				'post_type' => 'product',
-				'post_status' => $job->payload->status->code == 'P' ? 'publish' : 'draft',
+				'post_status' => $productStatus,
 				'post_content' => $job->payload->description,
 				'post_excerpt' => $job->payload->short_description
 			]);

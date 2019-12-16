@@ -3,7 +3,7 @@
 * Plugin Name: Cottoncast Products
 * Plugin URI: https://cottoncast.com/integrations
 * Description: Cottoncast. Thank you for joining us on our journey to become the best, not the biggest, Print on Demand company.
-* Version: 1.2.1
+* Version: 1.2.2
 * Author: Cottoncast
 * Author URI: https://cottoncast.com/
 * Developer: Chris Luttikhuis

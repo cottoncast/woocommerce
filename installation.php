@@ -88,6 +88,7 @@
 	{
 		register_setting( 'cottoncastPlugin', 'cottoncast_settings' );
 
+		/* Connect section */
 		add_settings_section(
 			'cottoncast_api_section',
 			__( 'Connect', 'wordpress' ),
@@ -95,6 +96,23 @@
 			'cottoncastPlugin'
 		);
 
+        add_settings_field(
+            'cottoncast_api_settings_field_username',
+            __( 'Username', 'wordpress' ),
+            'cottoncast_api_settings_field_username_render',
+            'cottoncastPlugin',
+            'cottoncast_api_section'
+        );
+
+        add_settings_field(
+            'cottoncast_api_settings_field_secret',
+            __( 'Secret', 'wordpress' ),
+            'cottoncast_api_settings_field_secret_render',
+            'cottoncastPlugin',
+            'cottoncast_api_section'
+        );
+
+        /* API Section */
 		add_settings_section(
 			'cottoncast_api_endpoint_section',
 			__( 'API Endpoints', 'wordpress' ),
@@ -102,38 +120,47 @@
 			'cottoncastPlugin'
 		);
 
-		add_settings_field(
-			'cottoncast_api_settings_field_username',
-			__( 'Username', 'wordpress' ),
-			'cottoncast_api_settings_field_username_render',
-			'cottoncastPlugin',
-			'cottoncast_api_section'
-		);
+        add_settings_field(
+            'cottoncast_api_settings_field_order_endpoint',
+            __( 'Order Endpoint', 'wordpress' ),
+            'cottoncast_api_settings_order_endpoint_render',
+            'cottoncastPlugin',
+            'cottoncast_api_endpoint_section'
+        );
 
-		add_settings_field(
-			'cottoncast_api_settings_field_secret',
-			__( 'Secret', 'wordpress' ),
-			'cottoncast_api_settings_field_secret_render',
-			'cottoncastPlugin',
-			'cottoncast_api_section'
-		);
+        add_settings_field(
+            'cottoncast_api_settings_field_config_endpoint',
+            __( 'Config Endpoint', 'wordpress' ),
+            'cottoncast_api_settings_config_endpoint_render',
+            'cottoncastPlugin',
+            'cottoncast_api_endpoint_section'
+        );
 
-		add_settings_field(
-			'cottoncast_api_settings_field_order_endpoint',
-			__( 'Order Endpoint', 'wordpress' ),
-			'cottoncast_api_settings_order_endpoint_render',
-			'cottoncastPlugin',
-			'cottoncast_api_endpoint_section'
-		);
 
-		add_settings_field(
-			'cottoncast_api_settings_field_config_endpoint',
-			__( 'Config Endpoint', 'wordpress' ),
-			'cottoncast_api_settings_config_endpoint_render',
-			'cottoncastPlugin',
-			'cottoncast_api_endpoint_section'
-		);
+        /* Products Section */
+        add_settings_section(
+            'cottoncast_products_section',
+            __( 'Products', 'wordpress' ),
+            'cottoncast_product_sections_callback',
+            'cottoncastPlugin'
+        );
+
+        add_settings_field(
+            'cottoncast_product_settings_field_product_status',
+            __( 'Product Status for new products', 'wordpress' ),
+            'cottoncast_product_settings_field_product_status_render',
+            'cottoncastPlugin',
+            'cottoncast_products_section'
+        );
+
+
+
+
 	}
+
+    /*
+     * Field rendering
+     */
 
 	function cottoncast_api_settings_field_username_render(  ) {
 		$options = get_option( 'cottoncast_settings' );
@@ -179,6 +206,23 @@
 		<?php
 	}
 
+
+    function cottoncast_product_settings_field_product_status_render(  )
+    {
+        $options = get_option( 'cottoncast_settings' );
+        ?>
+        <input type='radio' name='cottoncast_settings[cottoncast_product_settings_field_product_status]' value='draft' <?php echo $options['cottoncast_product_settings_field_product_status'] == 'draft' ? 'checked="checked"' : '' ?>>
+        <label>Draft</label>
+        <input type='radio' name='cottoncast_settings[cottoncast_product_settings_field_product_status]' value='publish' <?php echo $options['cottoncast_product_settings_field_product_status'] != 'draft' ? 'checked="checked"' : '' ?>>
+        <label>Published</label>
+        <?php
+    }
+
+
+	/*
+	 * Section Callbacks
+	 */
+
 	function cottoncast_sections_callback(  ) {
 		echo __( 'Manage your connection with CottonCast.', 'wordpress' );
 	}
@@ -186,6 +230,10 @@
 	function cottoncast_endpoint_sections_callback(  ) {
 		echo __( 'By default our production endpoints.', 'wordpress' );
 	}
+
+    function cottoncast_product_sections_callback(  ) {
+        echo __( 'Customize our product integration', 'wordpress' );
+    }
 
 	function cottoncast_settings_page(  ) {
 		?>
