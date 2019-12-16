@@ -226,11 +226,24 @@
             return $response;
         }
 
+
         if ($payload->status->code == 'C')
         {
+            $note = "Cottoncast has shipped the order.";
             $order->set_status('completed');
-            $order->add_order_note('Cottoncast has fulfilled the order.');
+
+            if (!empty($payload->shipments))
+            {
+                foreach ($payload->shipments as $shipId => $shipment){
+                    $id = $shipId + 1;
+                    $note .= " You can track shipment #{$id} <a href=\"{$shipment->trackingurl}\">here</a>.";
+                }
+            }
+
+            $order->add_order_note($note);
             $order->save();
+
+
         }
 
         $response->status = 'ok';
