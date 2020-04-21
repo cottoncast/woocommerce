@@ -148,12 +148,15 @@
 
 			foreach ($job->payload->variants as $jobVariant)
 			{
-				if (in_array($jobVariant->sku, $insert))
+			    $isInsert = in_array($jobVariant->sku, $insert);
+			    $isUpdate = in_array($jobVariant->sku, $update);
+
+				if ($isInsert)
 				{
 					$this->insertVariation($jobVariant, $job);
 				}
 
-				if (in_array($jobVariant->sku, $update))
+				if ($isUpdate)
 				{
 					$this->updateVariation($jobVariant, $job);
 				}
@@ -161,12 +164,15 @@
 				$this->variation->set_price($job->payload->price);
 				$this->variation->set_regular_price($job->payload->price);
 
-				foreach ($jobVariant->config->options as $option)
-				{
-					$attribute = $option->code;
-					$value = $option->label;
-					update_post_meta($this->variation_id, 'attribute_'.$this->labelToWooAttribute($this->attributeLabels[$attribute]), $value);
-				}
+                if ($isInsert || $isUpdate)
+                {
+                    foreach ($jobVariant->config->options as $option)
+                    {
+                        $attribute = $option->code;
+                        $value = $option->label;
+                        update_post_meta($this->variation_id, 'attribute_'.$this->labelToWooAttribute($this->attributeLabels[$attribute]), $value);
+                    }
+                }
 
 				$this->variation->save();
 			}
