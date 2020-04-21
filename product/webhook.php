@@ -11,7 +11,7 @@
 			echo json_encode(cottoncast_api_product_response());
 			die;
 		}
-	} );
+	}, 1 );
 
 
 	function cottoncast_api_product_response()
