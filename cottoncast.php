@@ -20,6 +20,7 @@ exit; // Exit if accessed directly
 }
 
 define('COTTONCAST_PLUGIN_PATH', __FILE__);
+define('COTTONCAST_PLUGIN_VERSION', '1.2.4');
 
 	/**
 	 * Check if WooCommerce is active
@@ -45,6 +46,12 @@ define('COTTONCAST_PLUGIN_PATH', __FILE__);
 
 		// Processing product updates in the background
 		include( 'product/cronjob.php' );
+
+		// The config endpoint. Used for updating settings directly from Studio
+		include('config/endpoint.php');
+
+		// The status endpoint. Directly called from Studio to gather information about the channel
+		include('status/endpoint.php');
 
 	}
 

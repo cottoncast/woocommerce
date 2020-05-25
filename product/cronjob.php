@@ -36,6 +36,17 @@
 		$product->run();
 	}
 
+	function cottoncast_queue_status($id)
+    {
+        $map = [
+            1 => 'new',
+            2 => 'processing',
+            3 => 'done',
+            4 => 'failed'
+        ];
+        return $map[$id];
+    }
+
 
 	class Cottoncast_Products_Cronjob_Product
 	{
@@ -52,8 +63,12 @@
 		private $product_id;
 		private $parent;
 
+		private $state;
+
 		private $variation_id;
 		private $variation;
+
+		private $settings;
 
 		private $attributeLabels;
 
@@ -67,6 +82,7 @@
 
 		public function run()
 		{
+		    $this->settings = get_option('cottoncast_settings');
 			// cleanup failed jobs
 			$this->cleanupFailedJobs();
 			// process new jobs (max 2)
@@ -116,16 +132,21 @@
 
 			if ($this->product_id) {
 				$this->parent = $this->updateProduct($job);
+				$this->state = 'update';
 			} else {
 				$this->insertProduct($job);
 				$this->parent = wc_get_product($this->product_id);
+				$this->state = 'insert';
 			}
 
 			$this->parent->set_stock_status('instock');
 			$this->parent->set_price($job->payload->price);
 			$this->parent->save();
 
-			wp_set_object_terms($this->product_id, $job->payload->tags, 'product_tag');
+			if ($this->state == 'insert' || $this->state == 'update' && (!isset($this->settings['product_tags_update']) || !empty($this->settings['product_tags_update'])))
+            {
+                wp_set_object_terms($this->product_id, $job->payload->tags, 'product_tag');
+            }
 
 			//@todo Add category mapping
 			$this->processCategories($job);
@@ -161,8 +182,11 @@
 					$this->updateVariation($jobVariant, $job);
 				}
 
-				$this->variation->set_price($job->payload->price);
-				$this->variation->set_regular_price($job->payload->price);
+				if ($isInsert || ($isUpdate && (!isset($this->settings['product_price_update']) || !empty($this->settings['product_price_update']))))
+                {
+                    $this->variation->set_price($job->payload->price);
+                    $this->variation->set_regular_price($job->payload->price);
+                }
 
                 if ($isInsert || $isUpdate)
                 {
@@ -211,10 +235,20 @@
 		private function updateProduct($job)
 		{
 			$product = wc_get_product( $this->product_id );
-			$product->set_name($job->payload->name);
+
+			if (!isset($this->settings['product_title_update']) || !empty($this->settings['product_title_update']))
+            {
+                $product->set_name($job->payload->name);
+            }
+
 			$product->set_status($job->payload->status->code == 'P' ? 'publish' : 'draft');
-			$product->set_description($job->payload->description);
-			$product->set_short_description($job->payload->short_description);
+
+            if (!isset($this->settings['product_description_update']) || !empty($this->settings['product_description_update']))
+            {
+                $product->set_description($job->payload->description);
+                $product->set_short_description($job->payload->short_description);
+            }
+
 
 			return $product;
 		}
@@ -256,6 +290,12 @@
 
 		private function processImages($job)
 		{
+
+		    if ($this->state == 'update' && (!isset($this->settings['product_images_update']) || !empty($this->settings['product_images_update']) ) )
+            {
+                return;
+            }
+
 			// Download all unique (based on url) images
 			$downloads = $this->downloadImages($job);
 			$existing = $this->getExistingAttachments();

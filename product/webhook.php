@@ -76,3 +76,9 @@
 		$header_hmac = $_SERVER['HTTP_COTTONCAST_AUTHENTICATION'];
 		return $calculatedHmac === $header_hmac;
 	}
+
+    function cottoncast_basic_verify_origin_request()
+    {
+        if (empty($_SERVER['PHP_AUTH_PW'])) return false;
+        return get_option('cottoncast_settings')['cottoncast_api_settings_field_secret'] === $_SERVER['PHP_AUTH_PW'];
+    }
