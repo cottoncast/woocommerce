@@ -139,6 +139,7 @@
 				$this->state = 'insert';
 			}
 
+			$this->parent->set_manage_stock(false);
 			$this->parent->set_stock_status('instock');
 			$this->parent->set_price($job->payload->price);
 			$this->parent->save();
