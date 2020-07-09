@@ -16,7 +16,7 @@
 
     function cottoncast_api_status_response()
     {
-        $response = new stdClass;
+        $response = new \stdClass;
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] != 'GET')
@@ -41,7 +41,7 @@
         $response->status = 'ok';
         $response->version = COTTONCAST_PLUGIN_VERSION;
         $response->platform = 'woocommerce';
-        $response->settings = new stdClass;
+        $response->settings = new \stdClass;
         $response->settings = [
             'product.title.update' => isset($settings['product_title_update']) ? $settings['product_title_update']: true,
             'product.description.update' => isset($settings['product_description_update']) ? $settings['product_description_update'] : true,
@@ -50,6 +50,15 @@
             'product.tags.update' => isset($settings['product_tags_update']) ? $settings['product_tags_update'] : true,
             'product.status.publish' => isset($settings['product_status_publish']) ? $settings['product_status_publish'] : true
         ];
+
+        $response->php = new \stdClass;
+        $response->php->version = phpversion();
+        $response->php->memory_limit = ini_get('memory_limit');
+        $response->php->max_exec_time = ini_get('max_execution_time');
+        $response->php->fopen_url_allow = ini_get('allow_url_fopen');
+        $response->php->extensions = new \stdClass;
+        $response->php->extensions->suhosin = extension_loaded('suhosin');
+        $response->php->extensions->curl = function_exists('curl_version');
 
         $response->queue = [];
 
@@ -60,7 +69,7 @@
         {
             foreach ($results as $queue_item)
             {
-                $item = new stdClass;
+                $item = new \stdClass;
                 $item->ID = $queue_item->job_id;
                 $payload = json_decode($queue_item->payload);
                 $item->SKU = $payload->sku;

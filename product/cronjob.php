@@ -38,6 +38,8 @@
 
     function cottoncast_process_product_queue()
     {
+        set_time_limit(240);
+        ini_set('memory_limit', '1024M');
         $product = new Cottoncast_Products_Cronjob_Product;
         $product->run();
     }
@@ -61,6 +63,9 @@
         const QUEUE_STATUS_PROCESSING = 2;
         const QUEUE_STATUS_DONE = 3;
         const QUEUE_STATUS_FAILED = 4;
+
+        const QUEUE_STATUS_FAILED_CRONTYPE = 41;
+
 
         const MAX_JOBS_PER_BATCH = 2; // ~3000 products per day can be added/updated
 
@@ -102,10 +107,18 @@
         private function cleanupFailedJobs()
         {
             global $wpdb;
+
+            if (php_sapi_name() == 'cli')
+            {
+                $failed_status = self::QUEUE_STATUS_FAILED_CRONTYPE;
+            } else {
+                $failed_status = self::QUEUE_STATUS_FAILED;
+            }
+
             $failedJobIds = $wpdb->get_results("SELECT job_id FROM {$this->queue_table_name} WHERE status = " . self::QUEUE_STATUS_PROCESSING . " AND timestamp < NOW() - INTERVAL 10 MINUTE");
             foreach ($failedJobIds as $job) {
                 $wpdb->query($wpdb->prepare("UPDATE {$this->queue_table_name} SET status= %d, `timestamp`=NOW() WHERE job_id= %d",
-                    [self::QUEUE_STATUS_FAILED, $job->job_id]));
+                    [$failed_status, $job->job_id]));
             }
         }
 
