@@ -83,6 +83,6 @@
         $response->meta_version = md5(get_option('cottoncast_integration_config'));
 
 
-
+        status_header(200); // OK
         return $response;
     }
