@@ -79,6 +79,14 @@
 
     function cottoncast_basic_verify_origin_request()
     {
+
+        if (isset($_SERVER['HTTP_AUTHORIZATION']))
+        {
+            $ha = base64_decode( substr($_SERVER['HTTP_AUTHORIZATION'],6) );
+            list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', $ha);
+            unset($ha);
+        }
+
         if (empty($_SERVER['PHP_AUTH_PW'])) return false;
         return get_option('cottoncast_settings')['cottoncast_api_settings_field_secret'] === $_SERVER['PHP_AUTH_PW'];
     }
