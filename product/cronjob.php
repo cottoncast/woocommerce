@@ -438,11 +438,11 @@
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $download_url);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     $binary = curl_exec($ch);
                     curl_close($ch);
                 } elseif (ini_get('allow_url_fopen')) {
-                    $binary = file_get_contents($download_url);
+                    $binary = file_get_contents($download_url, false, stream_context_create(['ssl' => ['verify_peer' => false, 'verify_peer_name' => false ]]));
                 } else {
                     throw new Exception("Your hosting provider does not allow downloads. Get a new one. This one sucks.");
                 }
