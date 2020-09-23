@@ -68,7 +68,7 @@
 	 */
 	add_filter( 'plugin_action_links_' . plugin_basename(COTTONCAST_PLUGIN_PATH), 'my_plugin_action_links' );
 	function my_plugin_action_links( $links ) {
-		$links[] = '<a href="'. esc_url( get_admin_url(null, 'options-general.php?page=cottoncast') ) .'">Settings</a>';
+		$links[] = '<a href="'. esc_url( get_admin_url(null, 'options-general.php?page=cottoncast-settings-page') ) .'">Settings</a>';
 		return $links;
 	}
 
