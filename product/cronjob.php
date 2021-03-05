@@ -141,12 +141,17 @@
 
         private function processNewJob($job)
         {
+            $this->getIntegrationsConfig($job);
             $this->processProduct($job);
             $this->processProductAttributes($job);
             $this->processVariations($job);
             $this->processImages($job);
         }
 
+        private function getIntegrationsConfig($job)
+        {
+            cottoncast_fetch_config($job->payload->meta->config_version);
+        }
 
         private function processProduct($job)
         {

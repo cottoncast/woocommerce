@@ -3,8 +3,17 @@
 		exit; // Exit if accessed directly
 	}
 
-	function cottoncast_fetch_config()
+	function cottoncast_fetch_config($checkVersion = null)
 	{
+	    $integration_config = json_decode(get_option('cottoncast_integration_config'));
+
+	    if ($checkVersion && $integration_config && !empty($integration_config->response->version)) {
+            if ($integration_config->response->version == $checkVersion) {
+                return false;
+            }
+        }
+
+
 		$config_url = get_option('cottoncast_settings')['cottoncast_api_settings_field_config_endpoint'];
 		$auth_string = get_option('cottoncast_settings')['cottoncast_api_settings_field_username'].":".get_option('cottoncast_settings')['cottoncast_api_settings_field_secret'];
 
@@ -34,7 +43,7 @@
 		{
 			update_option('cottoncast_integration_config', $body);
 		}
-
+        return true;
 	}
 
 
@@ -292,3 +301,14 @@
 		$product->update_meta_data( '_is_cottoncast_product', $custom_field_value );
 		$product->save();
 	}
+
+
+	/*
+	 * Remove obsolete cronjobs
+	 */
+    add_action("init", "cottoncast_cron_job_delete");
+
+	function cottoncast_cron_job_delete()
+    {
+        wp_clear_scheduled_hook('cottoncast_cronjob_config');
+    }
