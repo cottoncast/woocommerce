@@ -162,7 +162,7 @@
                 $this->state  = 'update';
             } else {
                 $this->insertProduct($job);
-                $this->parent = wc_get_product($this->product_id);
+                $this->parent = new WC_Product_Variable( $this->product_id );
                 $this->state  = 'insert';
             }
 
@@ -247,7 +247,7 @@
             update_post_meta($this->product_id, '_visibility', 'visible');
             update_post_meta($this->product_id, '_is_cottoncast_product', 'yes');
 
-            wp_set_object_terms($this->product_id, 'variable', 'product_type');
+            return true;
         }
 
 
@@ -266,7 +266,8 @@
                 $product->set_short_description($job->payload->short_description);
             }
 
-
+//            $rem_result = wp_remove_object_terms( $this->product_id, 'simple', 'product_type' );
+//            $result = wp_set_object_terms($this->product_id, 'variable', 'product_type', true);
             return $product;
         }
 
